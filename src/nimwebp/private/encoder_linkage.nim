@@ -1,3 +1,4 @@
+{.used.}
 import nimwebp / private / compiler
 
 compileC:
