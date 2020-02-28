@@ -16,7 +16,7 @@ proc convertToWebp(png, webp: string, q: float) =
     var ct = epochTime()
     var outWep: ptr uint8
     var encres = webpEncodeRGBA(pngBuff, png.width.cint, png.height.cint, (png.width.cint) * 4, q.float32, addr outWep)
-    echo "encoded ", epochTime() - ct, " lossless ", lossless, " q ", q
+    echo "encoded ", epochTime() - ct, " q ", q
     var strm = newFileStream(webp, fmWrite)
     strm.writeData(outWep, encres)
     strm.close()
@@ -28,7 +28,7 @@ convertToWebp("Nim-logo.png", "lossy100.webp", 100)
 * Decoding
 ```nim
 import nimwebp / decoder
-import streams, times
+import times
 import nimPNG
 
 echo "webp decoder ", webpDecoderVersion()
