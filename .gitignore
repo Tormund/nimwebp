@@ -2,3 +2,5 @@
 *.exe
 tests/test1
 *.webp
+src/nimwebp/private/clurpcache
+tests/build
