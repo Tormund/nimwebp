@@ -1,51 +1,57 @@
 {.used.}
-import nimwebp / private / compiler
 
-compileC:
-    "src/dsp/cost.c"
-    "src/dsp/cost_mips32.c"
-    "src/dsp/cost_mips_dsp_r2.c"
-    "src/dsp/cost_neon.c"
-    "src/dsp/cost_sse2.c"
-    "src/dsp/enc.c"
-    "src/dsp/enc_mips32.c"
-    "src/dsp/enc_mips_dsp_r2.c"
-    "src/dsp/enc_msa.c"
-    "src/dsp/enc_neon.c"
-    "src/dsp/enc_sse2.c"
-    "src/dsp/enc_sse41.c"
-    "src/dsp/lossless_enc.c"
-    "src/dsp/lossless_enc_mips32.c"
-    "src/dsp/lossless_enc_mips_dsp_r2.c"
-    "src/dsp/lossless_enc_msa.c"
-    "src/dsp/lossless_enc_neon.c"
-    "src/dsp/lossless_enc_sse2.c"
-    "src/dsp/lossless_enc_sse41.c"
-    "src/dsp/ssim.c"
-    "src/dsp/ssim_sse2.c"
-    "src/enc/alpha_enc.c"
-    "src/enc/analysis_enc.c"
-    "src/enc/backward_references_cost_enc.c"
-    "src/enc/backward_references_enc.c"
-    "src/enc/config_enc.c"
-    "src/enc/cost_enc.c"
-    "src/enc/filter_enc.c"
-    "src/enc/frame_enc.c"
-    "src/enc/histogram_enc.c"
-    "src/enc/iterator_enc.c"
-    "src/enc/near_lossless_enc.c"
-    "src/enc/picture_enc.c"
-    "src/enc/picture_csp_enc.c"
-    "src/enc/picture_psnr_enc.c"
-    "src/enc/picture_rescale_enc.c"
-    "src/enc/picture_tools_enc.c"
-    "src/enc/predictor_enc.c"
-    "src/enc/quant_enc.c"
-    "src/enc/syntax_enc.c"
-    "src/enc/token_enc.c"
-    "src/enc/tree_enc.c"
-    "src/enc/vp8l_enc.c"
-    "src/enc/webp_enc.c"
-    "src/utils/bit_writer_utils.c"
-    "src/utils/huffman_encode_utils.c"
-    "src/utils/quant_levels_utils.c"
+import clurp, os
+const lib = "../../libwebp/"
+const libwebpPath = currentSourcePath() / "/../../../libwebp" # ;)
+
+const sources = @[
+    lib & "src/dsp/cost.c",
+    lib & "src/dsp/cost_mips32.c",
+    lib & "src/dsp/cost_mips_dsp_r2.c",
+    lib & "src/dsp/cost_neon.c",
+    lib & "src/dsp/cost_sse2.c",
+    lib & "src/dsp/enc.c",
+    lib & "src/dsp/enc_mips32.c",
+    lib & "src/dsp/enc_mips_dsp_r2.c",
+    lib & "src/dsp/enc_msa.c",
+    lib & "src/dsp/enc_neon.c",
+    lib & "src/dsp/enc_sse2.c",
+    lib & "src/dsp/enc_sse41.c",
+    lib & "src/dsp/lossless_enc.c",
+    lib & "src/dsp/lossless_enc_mips32.c",
+    lib & "src/dsp/lossless_enc_mips_dsp_r2.c",
+    lib & "src/dsp/lossless_enc_msa.c",
+    lib & "src/dsp/lossless_enc_neon.c",
+    lib & "src/dsp/lossless_enc_sse2.c",
+    lib & "src/dsp/lossless_enc_sse41.c",
+    lib & "src/dsp/ssim.c",
+    lib & "src/dsp/ssim_sse2.c",
+    lib & "src/enc/alpha_enc.c",
+    lib & "src/enc/analysis_enc.c",
+    lib & "src/enc/backward_references_cost_enc.c",
+    lib & "src/enc/backward_references_enc.c",
+    lib & "src/enc/config_enc.c",
+    lib & "src/enc/cost_enc.c",
+    lib & "src/enc/filter_enc.c",
+    lib & "src/enc/frame_enc.c",
+    lib & "src/enc/histogram_enc.c",
+    lib & "src/enc/iterator_enc.c",
+    lib & "src/enc/near_lossless_enc.c",
+    lib & "src/enc/picture_enc.c",
+    lib & "src/enc/picture_csp_enc.c",
+    lib & "src/enc/picture_psnr_enc.c",
+    lib & "src/enc/picture_rescale_enc.c",
+    lib & "src/enc/picture_tools_enc.c",
+    lib & "src/enc/predictor_enc.c",
+    lib & "src/enc/quant_enc.c",
+    lib & "src/enc/syntax_enc.c",
+    lib & "src/enc/token_enc.c",
+    lib & "src/enc/tree_enc.c",
+    lib & "src/enc/vp8l_enc.c",
+    lib & "src/enc/webp_enc.c",
+    lib & "src/utils/bit_writer_utils.c",
+    lib & "src/utils/huffman_encode_utils.c",
+    lib & "src/utils/quant_levels_utils.c"
+]
+
+clurp(sources, includeDirs = [libwebpPath])
