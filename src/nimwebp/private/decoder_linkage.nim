@@ -2,7 +2,7 @@
 
 import clurp, os
 const lib = "../../libwebp/"
-const libwebpPath = currentSourcePath() / "/../../../libwebp" # ;)
+const libwebpPath = currentSourcePath().parentDir() / lib
 
 const sources = @[
     lib & "src/dec/alpha_dec.c",
