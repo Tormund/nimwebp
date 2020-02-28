@@ -1,17 +1,10 @@
 {.used.}
-# import nimwebp / private / compiler
-import clurp
 
+import clurp, os
 const lib = "../../libwebp/"
+const libwebpPath = currentSourcePath() / "/../../../libwebp" # ;)
 
 const sources = @[
-    lib & "src/dec/alphai_dec.h",
-    lib & "src/dec/vp8i_dec.h",
-    lib & "src/dec/webpi_dec.h",
-    lib & "src/dec/alpha_dec.h",
-    lib & "src/dec/common_dec.h",
-    lib & "src/dec/vp8_dec.h",
-
     lib & "src/dec/alpha_dec.c",
     lib & "src/dec/frame_dec.c",
     lib & "src/dec/idec_dec.c",
@@ -22,7 +15,6 @@ const sources = @[
     lib & "src/dec/vp8l_dec.c",
     lib & "src/dec/webp_dec.c",
     lib & "src/dec/buffer_dec.c",
-
     lib & "src/dsp/alpha_processing.c",
     lib & "src/dsp/alpha_processing_mips_dsp_r2.c",
     lib & "src/dsp/alpha_processing_neon.c",
@@ -65,7 +57,6 @@ const sources = @[
     lib & "src/dsp/yuv_neon.c",
     lib & "src/dsp/yuv_sse2.c",
     lib & "src/dsp/yuv_sse41.c",
-
     lib & "src/utils/bit_reader_utils.c",
     lib & "src/utils/color_cache_utils.c",
     lib & "src/utils/filters_utils.c",
@@ -77,4 +68,4 @@ const sources = @[
     lib & "src/utils/utils.c"
 ]
 
-clurp(sources)
+clurp(sources, includeDirs = [libwebpPath])

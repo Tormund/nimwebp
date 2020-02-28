@@ -1,7 +1,9 @@
 import nimwebp / private / decoder_linkage
 
-const h = "src/webp/decode.h"
-{.pragma: wpdec, header: h.}
+# const h = "src/webp/decode.h"
+# {.pragma: wpdec, header: h.}
+# const h = "src/webp/decode.h"
+{.pragma: wpdec.}
 
 proc webpDecoderVersion*():cint {.wpdec, importc:"WebPGetDecoderVersion".}
 proc webpInfo*(d: ptr uint8, s: cint, w: ptr cint, h: ptr cint):cint {.wpdec, importc:"WebPGetInfo".}
