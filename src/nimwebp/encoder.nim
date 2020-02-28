@@ -1,4 +1,4 @@
-import nimwebp / private / encoder_linkage
+import nimwebp / private / [ encoder_linkage, decoder_linkage ]
 
 const h = "src/webp/encode.h"
 {.pragma: wpenc, header: h.}
