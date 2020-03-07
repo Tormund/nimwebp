@@ -1,9 +1,13 @@
 import nimwebp / encoder
-import times, streams
+import times, streams, os
 import nimPNG
 
 echo "webp decoder ", webpDecoderVersion()
 echo "webp encoder ", webpEncoderVersion()
+
+const outDir = "test1_out"
+if not dirExists(outDir):
+    createDir(outDir)
 
 proc convertToWebp(png, webp: string, lossless: bool, q: float) =
     var png = loadPNG32(png)
@@ -38,11 +42,13 @@ proc convertToPNG(webp, png: string) =
     discard savePNG32(png, str, w, h)
     webpFree(decoded)
 
-convertToWebp("Nim-logo.png", "lossless.webp", true, 100)
-convertToPNG("lossless.webp", "Nim-logo-lossless-test.png")
+convertToWebp("Nim-logo.png", outDir/"lossless.webp", true, 100)
+convertToPNG(outDir/"lossless.webp", outDir/"Nim-logo-lossless-test.png")
 
-convertToWebp("Nim-logo.png", "lossy100.webp", false, 100)
-convertToPNG("lossy100.webp", "Nim-logo-100-test.png")
+convertToWebp("Nim-logo.png", outDir/"lossy100.webp", false, 100)
+convertToPNG(outDir/"lossy100.webp", outDir/"Nim-logo-100-test.png")
 
-convertToWebp("Nim-logo.png", "lossy40.webp", false, 40)
-convertToPNG("lossy40.webp", "Nim-logo-40-test.png")
+convertToWebp("Nim-logo.png", outDir/"lossy40.webp", false, 40)
+convertToPNG(outDir/"lossy40.webp", outDir/"Nim-logo-40-test.png")
+
+convertToWebp("sample.png", outDir/"sample_lossy40.webp", false, 40)

@@ -49,13 +49,13 @@ type WebPPreset* = enum
     WEBP_PRESET_ICON
     WEBP_PRESET_TEXT
 
-type WebPConfig* {.importc.} = object
+type WebPConfig* = object
     lossless*: cint
     quality*: float32
-    meth*{.importc:"method".}: cint
+    meth*: cint
     image_hint*: WebPImageHint
     target_size*: cint
-    target_PSNR*: cint
+    target_PSNR*: float32
     segments*: cint
     sns_strength*: cint
     filter_strength*: cint
@@ -81,7 +81,7 @@ type WebPConfig* {.importc.} = object
     use_sharp_yuv*: cint
     pad: array[2, uint32]
 
-type WebPAuxStats* {.importc.} = object
+type WebPAuxStats* = object
     coded_size*: cint
     PSNR*: array[5, float32]
     block_count*: array[3, cint]
@@ -104,22 +104,109 @@ type WebPAuxStats* {.importc.} = object
 
     pad: array[2, uint32]
 
-type WebPMemoryWriter* {.importc.} = object
+type WebPMemoryWriter* = object
     mem*: ptr uint8
     size*: cint
     max_size*: cint
     pad: array[1, uint32]
 
-type WebPPicture* {.importc.} = object
+type
+    WebPWriterFunction* = proc(data: ptr uint8, size: cint, pic: ptr WebPPicture): cint {.cdecl.}
+    WebPProgressHook* = proc(percent: cint, picture: ptr WebPPicture): cint {.cdecl.}
 
-type WebPWriterFunction* = proc(data: ptr uint8, size: cint, pic: ptr WebPPicture): cint
-type WebPProgressHook* = proc(percent: cint, picture: ptr WebPPicture): cint
+    WebPPicture* = object
+        use_argb*: cint
 
-proc webpConfigInit*(conf: ptr WebPConfig): cint {.importc:"WebPConfigInit".}
-proc webpConfigPreset*(conf: ptr WebPConfig, preset: WebPPreset, quality: float32): cint {.importc:"WebPConfigPreset".}
+        colorspace*: cint #WebPEncCSP
+        width*: cint
+        height*: cint
+        y*: ptr uint8
+        u*: ptr uint8
+        v*: ptr uint8
+        y_stride*: cint
+        uv_stride*: cint
+        a*: ptr uint8
+        a_stride*: cint
+        pad1: array[2, uint32]
+
+        argb*: ptr uint32
+        argb_stride*: cint
+        pad2: array[3, uint32]
+
+        writer*: WebPWriterFunction
+        custom_ptr*: pointer
+
+        extra_info_type*: cint
+        extra_info*: ptr uint8
+
+        stats*: ptr WebPAuxStats
+        error_code*: WebPEncodingError
+        progress_hook*: ptr WebPProgressHook
+
+        user_data*: pointer
+        pad3: array[3, uint32]
+        pad4, pad5: ptr uint8
+        pad6: array[8, uint32]
+
+        memory: pointer
+        memory_argb: pointer
+        pad7: array[2, pointer]
+
+        # WebPConfigInitInternal
+
+const WEBP_ENCODER_ABI_VERSION = 0x0210.cint
+proc webpConfigInitInternal(conf: ptr WebPConfig, preset: WebPPreset,q: float32, abiVersion: cint): cint {.importc: "WebPConfigInitInternal".}
+
+proc webpConfigInit*(conf: ptr WebPConfig): cint =
+    result = conf.webpConfigInitInternal(WebPPreset.WEBP_PRESET_DEFAULT, 75.0, WEBP_ENCODER_ABI_VERSION)
+
+proc webpConfigPreset*(conf: ptr WebPConfig, preset: WebPPreset, quality: float32): cint =
+    conf.webpConfigInitInternal(preset, quality, WEBP_ENCODER_ABI_VERSION)
+
 proc webpConfigLosslessPreset*(conf: ptr WebPConfig, lvl: cint): cint {.importc: "WebPConfigLosslessPreset".}
 proc webpValidateConfig*(conf: ptr WebPConfig): cint {.importc: "WebPValidateConfig".}
 
-proc webpMemoryWriterInit*(writer: ptr WebPMemoryWriter) {.importc:"WebPMemoryWriter".}
+proc webpMemoryWriterInit*(writer: ptr WebPMemoryWriter) {.importc:"WebPMemoryWriterInit".}
 proc webpMemoryWriterClear*(writer: ptr WebPMemoryWriter) {.importc:"WebPMemoryWriterClear".}
-proc webpMemoryWrite*(data: ptr uint8, size: cint, pic: ptr WebPPicture) {.importc:"WebPMemoryWrite".}
+proc webpMemoryWrite*(data: ptr uint8, size: cint, pic: ptr WebPPicture) {.cdecl, importc:"WebPMemoryWrite".}
+
+
+proc webpPictureInitInternal(pic: ptr WebPPicture, abiVersion: cint): cint {.importc:"WebPPictureInitInternal".}
+proc webpPictureInit*(picture: ptr WebPPicture): cint =
+    result = picture.webpPictureInitInternal(WEBP_ENCODER_ABI_VERSION)
+
+proc webpPictureAlloc*(picture: ptr WebPPicture): cint {.importc: "WebPPictureAlloc".}
+proc webpPictureFree*(picture: ptr WebPPicture): cint {.importc: "WebPPictureFree".}
+proc webpPictureCopy*(src: ptr WebPPicture, dst: ptr WebPPicture): cint {.importc: "WebPPictureCopy".}
+
+type WebPPictureDistorsion* {.pure.} = enum
+    PSNR = 0.cint
+    SSIM
+    LSIM
+
+proc webpPlaneDistortion*(src: ptr uint8, src_stride: cint, reff: ptr uint8,
+    ref_stride: cint, width, height: cint, x_step: cint, typ: WebPPictureDistorsion,
+    distortion: ptr float32, res: ptr float32): cint {.importc: "WebPPlaneDistortion".}
+proc webpPictureDistortion*(src, reff: ptr WebPPicture, typ: WebPPictureDistorsion, res: array[5, float32]): cint  {.importc: "WebPPictureDistortion".}
+proc webpPictureCrop*(pic: WebPPicture, left, top, width, height: cint): cint {.importc: "WebPPictureCrop".}
+proc webpPictureView*(src: ptr WebPPicture, left, top,
+    width, height: cint, dst: ptr WebPPicture) : cint {.importc: "WebPPictureView".}
+
+proc webpPictureIsView*(picture: ptr WebPPicture): cint {.importc: "WebPPictureIsView".}
+proc webpPictureRescale*(pic: ptr WebPPicture, width, height: cint): cint {.importc: "WebPPictureRescale".}
+proc webpPictureImportRGB*(pic: ptr WebPPicture, buff: ptr uint8, stride: cint): cint {.importc: "WebPPictureImportRGB".}
+proc webpPictureImportRGBA*(pic: ptr WebPPicture, buff: ptr uint8, stride: cint): cint {.importc: "WebPPictureImportRGBA".}
+proc webpPictureImportRGBX*(pic: ptr WebPPicture, buff: ptr uint8, stride: cint): cint {.importc: "WebPPictureImportRGBX".}
+
+proc webpPictureImportBGR*(pic: ptr WebPPicture, buff: ptr uint8, stride: cint): cint {.importc: "WebPPictureImportBGR".}
+proc webpPictureImportBGRA*(pic: ptr WebPPicture, buff: ptr uint8, stride: cint): cint {.importc: "WebPPictureImportBGRA".}
+proc webpPictureImportBGRX*(pic: ptr WebPPicture, buff: ptr uint8, stride: cint): cint {.importc: "WebPPictureImportBGRX".}
+
+proc webpPictureARGBToYUVA*(pic: ptr WebPPicture, colorspace: cint): cint  {.importc: "WebPPictureARGBToYUVA".}
+proc webpPictureARGBToYUVADithered*(pic: ptr WebPPicture, colorspace: cint, dithering: float32): cint {.importc: "WebPPictureARGBToYUVADithered".}
+proc webpPictureSharpARGBToYUVA*(pic: ptr WebPPicture): cint {.importc: "WebPPictureSharpARGBToYUVA".}
+proc webpPictureYUVAToARGB*(pic: ptr WebPPicture): cint {.importc: "WebPPictureYUVAToARGB".}
+proc webpCleanupTransparentArea*(pic: ptr WebPPicture): cint {.importc: "WebPCleanupTransparentArea".}
+proc webpPictureHasTransparency*(pic: ptr WebPPicture): cint {.importc: " WebPPictureHasTransparency".}
+proc webpBlendAlpha*(pic: ptr WebPPicture, background: uint32): cint {.importc: "WebPBlendAlpha".}
+proc webpEncode*(conf: ptr WebPConfig, pic: ptr WebPPicture): cint {.importc: "WebPEncode".}
