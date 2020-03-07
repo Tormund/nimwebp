@@ -4,3 +4,4 @@ tests/test1
 *.webp
 src/nimwebp/private/clurpcache
 tests/build
+tests/test*_out
