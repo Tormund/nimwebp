@@ -10,7 +10,7 @@ if not dirExists(outDir):
     createDir(outDir)
 
 proc convertToWebp(png, webp: string, lossless: bool, q: float) =
-    var png = loadPNG32(png)
+    var png = loadPNG32("tests" / png)
     assert(not png.isnil, "image not loaded")
 
     var pngBuff = cast[ptr uint8](addr png.data[0])

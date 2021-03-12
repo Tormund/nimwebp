@@ -19,7 +19,7 @@ type WebpTestConfig = tuple
     s: float
 
 proc convertToWebp(png: string, configs: openarray[WebpTestConfig]) =
-    var png = loadPNG32(png)
+    var png = loadPNG32("tests" / png)
     assert(not png.isnil, "image not loaded")
 
     var pngBuff = cast[ptr uint8](addr png.data[0])
