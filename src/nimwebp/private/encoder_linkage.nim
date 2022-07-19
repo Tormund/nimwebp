@@ -2,7 +2,9 @@
 
 import clurp, os
 const lib = "../../libwebp/"
-const libwebpPath = currentSourcePath().parentDir() / lib
+const libwebpPath = currentSourcePath().replace("\\", "/").parentDir() / lib
+
+{.passC: "-I" & libwebpPath.}
 
 const sources = @[
     lib & "src/dsp/cost.c",

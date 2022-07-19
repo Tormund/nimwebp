@@ -1,8 +1,10 @@
 {.used.}
 
-import clurp, os
+import clurp, os, strutils
 const lib = "../../libwebp/"
-const libwebpPath = currentSourcePath().parentDir() / lib
+const libwebpPath = currentSourcePath().replace("\\", "/").parentDir() / lib
+
+{.passC: "-I" & libwebpPath.}
 
 const sources = @[
     lib & "src/dec/alpha_dec.c",
