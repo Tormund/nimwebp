@@ -1,6 +1,6 @@
 {.used.}
 
-import clurp, os
+import clurp, os, strutils
 const lib = "../../libwebp/"
 const libwebpPath = currentSourcePath().replace("\\", "/").parentDir() / lib
 
